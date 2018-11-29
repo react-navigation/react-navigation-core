@@ -1,9 +1,15 @@
 import NavigationActions from '../NavigationActions';
 import invariant from '../utils/invariant';
 
-const getNavigationActionCreators = route => {
+export interface NavigationActionCreator {
+  goBack: (key: string) => any
+  navigate: (navigateTo: string, params: any, action: any) => any
+  setParams: (params: any) => any
+}
+
+const getNavigationActionCreators = (route: any): NavigationActionCreator => {
   return {
-    goBack: key => {
+    goBack: (key: string) => {
       let actualizedKey = key;
       if (key === undefined && route.key) {
         invariant(typeof route.key === 'string', 'key should be a string');

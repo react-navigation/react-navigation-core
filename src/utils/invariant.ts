@@ -11,7 +11,18 @@
  * will remain to ensure logic does not differ in production.
  */
 
-var validateFormat = function() {};
+declare var process : {
+  env: string
+}
+
+type IValidateFormat = (format?: string) => void;
+
+interface InvariantError extends Error {
+  framesToPop?: number
+  name: string
+}
+
+var validateFormat: IValidateFormat = function() {};
 
 if (process.env !== 'production') {
   validateFormat = function(format) {
@@ -21,20 +32,19 @@ if (process.env !== 'production') {
   };
 }
 
-function invariant(condition, format, a, b, c, d, e, f) {
+function invariant(condition: boolean, format?: string, ...args: any[]): void {
   validateFormat(format);
 
   if (!condition) {
-    var error;
+    var error: InvariantError;
     if (format === undefined) {
       error = new Error(
         'Minified exception occurred; use the non-minified dev environment for the full error message and additional helpful warnings.'
       );
     } else {
-      var args = [a, b, c, d, e, f];
       var argIndex = 0;
       error = new Error(
-        format.replace(/%s/g, function() {
+        format.replace(/%s/g, function(): string {
           return args[argIndex++];
         })
       );
@@ -46,4 +56,4 @@ function invariant(condition, format, a, b, c, d, e, f) {
   }
 }
 
-module.exports = invariant;
+export default invariant;
