@@ -4,20 +4,20 @@ const NAVIGATE: string = 'Navigation/NAVIGATE';
 const SET_PARAMS: string = 'Navigation/SET_PARAMS';
 
 interface ActionCreatorPayload {
-  key?: string
-  immediate?: boolean
-  params?: any
-  routeName?: string
-  action?: any
+  key?: string;
+  immediate?: boolean;
+  params?: any;
+  routeName?: string;
+  action?: any;
 }
 
 interface Action {
-  type: string,
-  key?: string
-  immediate?: boolean
-  params?: any
-  routeName?: string
-  action?: any
+  type: string;
+  key?: string;
+  immediate?: boolean;
+  params?: any;
+  routeName?: string;
+  action?: any;
 }
 
 const back = (payload: ActionCreatorPayload = {}): Action => ({
@@ -26,22 +26,10 @@ const back = (payload: ActionCreatorPayload = {}): Action => ({
   immediate: payload.immediate,
 });
 
-const init = (payload: ActionCreatorPayload = {}): Action => {
-  /*
-    TODO: maybe simplify this and do an implicit return?
-    ({
-      type: INIT,
-      params: payload.params ? payload.params : undefined
-    })
-  */
-  let action: Action = {
-    type: INIT,
-  };
-  if (payload.params) {
-    action.params = payload.params;
-  }
-  return action;
-};
+const init = (payload: ActionCreatorPayload = {}): Action => ({
+  type: INIT,
+  params: payload.params ? payload.params : undefined,
+});
 
 const navigate = (payload: ActionCreatorPayload): Action => {
   const action: Action = {
