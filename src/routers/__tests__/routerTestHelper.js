@@ -2,25 +2,26 @@ import NavigationActions from '../../NavigationActions';
 
 // A simple helper that makes it easier to write basic routing tests
 // We generally want to apply one action after the other and check router returns correct state
-// it's often convenient to manipulate a structure that keeps the router state to creating many state1, state2, state3 local variables...
+// it's often convenient to manipulate a structure that keeps the router state to avoid
+// creating many state1, state2, state3 local variables which are prone to typos...
+
+const debug = false;
 
 const defaultInitAction = {
   type: NavigationActions.INIT,
 };
 
 export const getRouterTestHelper = (router, initAction = defaultInitAction) => {
-  const log = false;
-
   let state = router.getStateForAction(initAction);
 
   const applyAction = action => {
-    log && console.debug('\n');
-    log && console.debug('---------------------------------------');
-    log && console.debug('\n');
-    log && console.debug('old state', state);
-    log && console.debug('action', action);
+    debug && console.debug('\n');
+    debug && console.debug('---------------------------------------');
+    debug && console.debug('\n');
+    debug && console.debug('old state', state);
+    debug && console.debug('action', action);
     state = router.getStateForAction(action, state);
-    log && console.debug('new state', state);
+    debug && console.debug('new state', state);
     return state;
   };
 
