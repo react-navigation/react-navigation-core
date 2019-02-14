@@ -47,22 +47,22 @@ describe('SwitchRouter', () => {
 
   test('handles initialRoute backBehavior', () => {
     const { navigateTo, back, getState } = getRouterTestHelper(
-      getExampleRouter({ backBehavior: 'initialRoute' })
+      getExampleRouter({ backBehavior: 'initialRoute', initialRouteName: 'B' })
     );
     expect(getState().routeKeyHistory).toBeUndefined();
-    expect(getState().index).toEqual(0);
-
-    navigateTo('B');
     expect(getState().index).toEqual(1);
 
     navigateTo('C');
     expect(getState().index).toEqual(2);
 
-    back();
+    navigateTo('A');
     expect(getState().index).toEqual(0);
 
     back();
-    expect(getState().index).toEqual(0);
+    expect(getState().index).toEqual(1);
+
+    back();
+    expect(getState().index).toEqual(1);
   });
 
   test('handles order backBehavior', () => {
