@@ -82,72 +82,79 @@ describe('SwitchRouter', () => {
   });
 
   test('handles order backBehavior', () => {
-    const routerHelper = new ExampleRouterHelper({ backBehavior: 'order' });
-    expect(routerHelper.getCurrentState().routeKeyHistory).toBeUndefined();
+    const { applyAction, getState } = getRouterTestHelper(
+      getExampleRouter({ backBehavior: 'order' })
+    );
+    expect(getState().routeKeyHistory).toBeUndefined();
 
     expect(
-      routerHelper.applyAction({
+      applyAction({
         type: NavigationActions.NAVIGATE,
         routeName: 'C',
       })
     ).toMatchObject({ index: 2 });
 
-    expect(
-      routerHelper.applyAction({ type: NavigationActions.BACK })
-    ).toMatchObject({ index: 1 });
+    expect(applyAction({ type: NavigationActions.BACK })).toMatchObject({
+      index: 1,
+    });
 
-    expect(
-      routerHelper.applyAction({ type: NavigationActions.BACK })
-    ).toMatchObject({ index: 0 });
+    expect(applyAction({ type: NavigationActions.BACK })).toMatchObject({
+      index: 0,
+    });
 
-    expect(
-      routerHelper.applyAction({ type: NavigationActions.BACK })
-    ).toMatchObject({ index: 0 });
+    expect(applyAction({ type: NavigationActions.BACK })).toMatchObject({
+      index: 0,
+    });
   });
 
   test('handles history backBehavior', () => {
-    const routerHelper = new ExampleRouterHelper({ backBehavior: 'history' });
-    expect(routerHelper.getCurrentState().routeKeyHistory).toMatchObject(['A']);
+    const { applyAction, getState } = getRouterTestHelper(
+      getExampleRouter({ backBehavior: 'history' })
+    );
+    expect(getState().routeKeyHistory).toMatchObject(['A']);
 
     expect(
-      routerHelper.applyAction({
+      applyAction({
         type: NavigationActions.NAVIGATE,
         routeName: 'B',
       })
     ).toMatchObject({ index: 1, routeKeyHistory: ['A', 'B'] });
 
     expect(
-      routerHelper.applyAction({
+      applyAction({
         type: NavigationActions.NAVIGATE,
         routeName: 'A',
       })
     ).toMatchObject({ index: 0, routeKeyHistory: ['B', 'A'] });
 
     expect(
-      routerHelper.applyAction({
+      applyAction({
         type: NavigationActions.NAVIGATE,
         routeName: 'C',
       })
     ).toMatchObject({ index: 2, routeKeyHistory: ['B', 'A', 'C'] });
 
     expect(
-      routerHelper.applyAction({
+      applyAction({
         type: NavigationActions.NAVIGATE,
         routeName: 'A',
       })
     ).toMatchObject({ index: 0, routeKeyHistory: ['B', 'C', 'A'] });
 
-    expect(
-      routerHelper.applyAction({ type: NavigationActions.BACK })
-    ).toMatchObject({ index: 2, routeKeyHistory: ['B', 'C'] });
+    expect(applyAction({ type: NavigationActions.BACK })).toMatchObject({
+      index: 2,
+      routeKeyHistory: ['B', 'C'],
+    });
 
-    expect(
-      routerHelper.applyAction({ type: NavigationActions.BACK })
-    ).toMatchObject({ index: 1, routeKeyHistory: ['B'] });
+    expect(applyAction({ type: NavigationActions.BACK })).toMatchObject({
+      index: 1,
+      routeKeyHistory: ['B'],
+    });
 
-    expect(
-      routerHelper.applyAction({ type: NavigationActions.BACK })
-    ).toMatchObject({ index: 1, routeKeyHistory: ['B'] });
+    expect(applyAction({ type: NavigationActions.BACK })).toMatchObject({
+      index: 1,
+      routeKeyHistory: ['B'],
+    });
   });
 
   test('handles nested actions', () => {
@@ -275,24 +282,22 @@ describe('SwitchRouter', () => {
 // A simple helper that makes it easier to write basic routing tests
 // As we generally want to apply one action after the other,
 // it's often convenient to manipulate a structure that keeps the router state
-class ExampleRouterHelper {
-  constructor(config) {
-    this._router = getExampleRouter(config);
-    this._currentState = this._router.getStateForAction({
-      type: NavigationActions.INIT,
-    });
+const getRouterTestHelper = (
+  router,
+  initAction = {
+    type: NavigationActions.INIT,
   }
-
-  applyAction = action => {
-    this._currentState = this._router.getStateForAction(
-      action,
-      this._currentState
-    );
-    return this._currentState;
+) => {
+  let state = router.getStateForAction(initAction);
+  const applyAction = action => {
+    state = router.getStateForAction(action, state);
+    return state;
   };
 
-  getCurrentState = () => this._currentState;
-}
+  const getState = () => state;
+
+  return { applyAction, getState };
+};
 
 const getExampleRouter = (config = {}) => {
   const PlainScreen = () => <div />;
