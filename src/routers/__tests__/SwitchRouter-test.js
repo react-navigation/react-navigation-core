@@ -4,191 +4,149 @@ import React from 'react';
 import SwitchRouter from '../SwitchRouter';
 import StackRouter from '../StackRouter';
 import NavigationActions from '../../NavigationActions';
+import { getRouterTestHelper } from './routerTestHelper';
 
 describe('SwitchRouter', () => {
   test('resets the route when unfocusing a tab by default', () => {
-    const router = getExampleRouter();
-    const state = router.getStateForAction({ type: NavigationActions.INIT });
-    const state2 = router.getStateForAction(
-      { type: NavigationActions.NAVIGATE, routeName: 'A2' },
-      state
-    );
-    expect(state2.routes[0].index).toEqual(1);
-    expect(state2.routes[0].routes.length).toEqual(2);
+    const { navigateTo, getState } = getRouterTestHelper(getExampleRouter());
 
-    const state3 = router.getStateForAction(
-      { type: NavigationActions.NAVIGATE, routeName: 'B' },
-      state2
-    );
+    navigateTo('A2');
+    expect(getState().routes[0].index).toEqual(1);
+    expect(getState().routes[0].routes.length).toEqual(2);
 
-    expect(state3.routes[0].index).toEqual(0);
-    expect(state3.routes[0].routes.length).toEqual(1);
+    navigateTo('B');
+    expect(getState().routes[0].index).toEqual(0);
+    expect(getState().routes[0].routes.length).toEqual(1);
   });
 
   test('does not reset the route on unfocus if resetOnBlur is false', () => {
-    const router = getExampleRouter({ resetOnBlur: false });
-    const state = router.getStateForAction({ type: NavigationActions.INIT });
-    const state2 = router.getStateForAction(
-      { type: NavigationActions.NAVIGATE, routeName: 'A2' },
-      state
-    );
-    expect(state2.routes[0].index).toEqual(1);
-    expect(state2.routes[0].routes.length).toEqual(2);
-
-    const state3 = router.getStateForAction(
-      { type: NavigationActions.NAVIGATE, routeName: 'B' },
-      state2
+    const { navigateTo, getState } = getRouterTestHelper(
+      getExampleRouter({ resetOnBlur: false })
     );
 
-    expect(state3.routes[0].index).toEqual(1);
-    expect(state3.routes[0].routes.length).toEqual(2);
+    navigateTo('A2');
+    expect(getState().routes[0].index).toEqual(1);
+    expect(getState().routes[0].routes.length).toEqual(2);
+
+    navigateTo('B');
+    expect(getState().routes[0].index).toEqual(1);
+    expect(getState().routes[0].routes.length).toEqual(2);
   });
 
   test('ignores back by default', () => {
-    const router = getExampleRouter();
-    const state = router.getStateForAction({ type: NavigationActions.INIT });
-    const state2 = router.getStateForAction(
-      { type: NavigationActions.NAVIGATE, routeName: 'B' },
-      state
-    );
-    expect(state2.index).toEqual(1);
-
-    const state3 = router.getStateForAction(
-      { type: NavigationActions.BACK },
-      state2
+    const { navigateTo, back, getState } = getRouterTestHelper(
+      getExampleRouter()
     );
 
-    expect(state3.index).toEqual(1);
+    navigateTo('B');
+    expect(getState().index).toEqual(1);
+
+    back();
+    expect(getState().index).toEqual(1);
   });
 
   test('handles initialRoute backBehavior', () => {
-    const router = getExampleRouter({ backBehavior: 'initialRoute' });
-
-    const state = router.getStateForAction({ type: NavigationActions.INIT });
-    expect(state.routeKeyHistory).toBeUndefined();
-
-    const state2 = router.getStateForAction(
-      { type: NavigationActions.NAVIGATE, routeName: 'B' },
-      state
+    const { navigateTo, back, getState } = getRouterTestHelper(
+      getExampleRouter({ backBehavior: 'initialRoute' })
     );
-    expect(state2.index).toEqual(1);
+    expect(getState().routeKeyHistory).toBeUndefined();
+    expect(getState().index).toEqual(0);
 
-    const state3 = router.getStateForAction(
-      { type: NavigationActions.BACK },
-      state2
-    );
+    navigateTo('B');
+    expect(getState().index).toEqual(1);
 
-    expect(state3.index).toEqual(0);
+    navigateTo('C');
+    expect(getState().index).toEqual(2);
+
+    back();
+    expect(getState().index).toEqual(0);
+
+    back();
+    expect(getState().index).toEqual(0);
   });
 
   test('handles order backBehavior', () => {
-    const { applyAction, getState } = getRouterTestHelper(
+    const { navigateTo, back, getState } = getRouterTestHelper(
       getExampleRouter({ backBehavior: 'order' })
     );
     expect(getState().routeKeyHistory).toBeUndefined();
 
-    expect(
-      applyAction({
-        type: NavigationActions.NAVIGATE,
-        routeName: 'C',
-      })
-    ).toMatchObject({ index: 2 });
+    navigateTo('C');
+    expect(getState().index).toEqual(2);
 
-    expect(applyAction({ type: NavigationActions.BACK })).toMatchObject({
-      index: 1,
-    });
+    back();
+    expect(getState().index).toEqual(1);
 
-    expect(applyAction({ type: NavigationActions.BACK })).toMatchObject({
-      index: 0,
-    });
+    back();
+    expect(getState().index).toEqual(0);
 
-    expect(applyAction({ type: NavigationActions.BACK })).toMatchObject({
-      index: 0,
-    });
+    back();
+    expect(getState().index).toEqual(0);
   });
 
   test('handles history backBehavior', () => {
-    const { applyAction, getState } = getRouterTestHelper(
+    const { navigateTo, back, getState } = getRouterTestHelper(
       getExampleRouter({ backBehavior: 'history' })
     );
     expect(getState().routeKeyHistory).toMatchObject(['A']);
 
-    expect(
-      applyAction({
-        type: NavigationActions.NAVIGATE,
-        routeName: 'B',
-      })
-    ).toMatchObject({ index: 1, routeKeyHistory: ['A', 'B'] });
+    navigateTo('B');
+    expect(getState().index).toEqual(1);
+    expect(getState().routeKeyHistory).toEqual(['A', 'B']);
 
-    expect(
-      applyAction({
-        type: NavigationActions.NAVIGATE,
-        routeName: 'A',
-      })
-    ).toMatchObject({ index: 0, routeKeyHistory: ['B', 'A'] });
+    navigateTo('A');
+    expect(getState().index).toEqual(0);
+    expect(getState().routeKeyHistory).toEqual(['B', 'A']);
 
-    expect(
-      applyAction({
-        type: NavigationActions.NAVIGATE,
-        routeName: 'C',
-      })
-    ).toMatchObject({ index: 2, routeKeyHistory: ['B', 'A', 'C'] });
+    navigateTo('C');
+    expect(getState().index).toEqual(2);
+    expect(getState().routeKeyHistory).toEqual(['B', 'A', 'C']);
 
-    expect(
-      applyAction({
-        type: NavigationActions.NAVIGATE,
-        routeName: 'A',
-      })
-    ).toMatchObject({ index: 0, routeKeyHistory: ['B', 'C', 'A'] });
+    navigateTo('A');
+    expect(getState().index).toEqual(0);
+    expect(getState().routeKeyHistory).toEqual(['B', 'C', 'A']);
 
-    expect(applyAction({ type: NavigationActions.BACK })).toMatchObject({
-      index: 2,
-      routeKeyHistory: ['B', 'C'],
-    });
+    back();
+    expect(getState().index).toEqual(2);
+    expect(getState().routeKeyHistory).toEqual(['B', 'C']);
 
-    expect(applyAction({ type: NavigationActions.BACK })).toMatchObject({
-      index: 1,
-      routeKeyHistory: ['B'],
-    });
+    back();
+    expect(getState().index).toEqual(1);
+    expect(getState().routeKeyHistory).toEqual(['B']);
 
-    expect(applyAction({ type: NavigationActions.BACK })).toMatchObject({
-      index: 1,
-      routeKeyHistory: ['B'],
-    });
+    back();
+    expect(getState().index).toEqual(1);
+    expect(getState().routeKeyHistory).toEqual(['B']);
   });
 
   test('handles nested actions', () => {
-    const router = getExampleRouter();
-    const state = router.getStateForAction({ type: NavigationActions.INIT });
-    const state2 = router.getStateForAction(
-      {
-        type: NavigationActions.NAVIGATE,
-        routeName: 'B',
-        action: { type: NavigationActions.NAVIGATE, routeName: 'B2' },
-      },
-      state
-    );
-    const subState = state2.routes[state2.index];
-    const activeGrandChildRoute = subState.routes[subState.index];
-    expect(activeGrandChildRoute.routeName).toEqual('B2');
+    const { navigateTo, getSubState } = getRouterTestHelper(getExampleRouter());
+
+    navigateTo('B', {
+      action: { type: NavigationActions.NAVIGATE, routeName: 'B2' },
+    });
+    expect(getSubState(1).routeName).toEqual('B');
+    expect(getSubState(2).routeName).toEqual('B2');
   });
 
   test('handles nested actions and params simultaneously', () => {
-    const router = getExampleRouter();
-    const state = router.getStateForAction({ type: NavigationActions.INIT });
-    const state2 = router.getStateForAction(
-      {
+    const { navigateTo, getSubState } = getRouterTestHelper(getExampleRouter());
+
+    const params1 = { foo: 'bar' };
+    const params2 = { bar: 'baz' };
+
+    navigateTo('B', {
+      params: params1,
+      action: {
         type: NavigationActions.NAVIGATE,
-        routeName: 'B',
-        params: { foo: 'bar' },
-        action: { type: NavigationActions.NAVIGATE, routeName: 'B2' },
+        routeName: 'B2',
+        params: params2,
       },
-      state
-    );
-    const subState = state2.routes[state2.index];
-    const activeGrandChildRoute = subState.routes[subState.index];
-    expect(subState.params.foo).toEqual('bar');
-    expect(activeGrandChildRoute.routeName).toEqual('B2');
+    });
+    expect(getSubState(1).routeName).toEqual('B');
+    expect(getSubState(1).params).toEqual(params1);
+    expect(getSubState(2).routeName).toEqual('B2');
+    expect(getSubState(2).params).toEqual(params2);
   });
 
   test('order of handling navigate action is correct for nested switchrouters', () => {
@@ -215,35 +173,17 @@ describe('SwitchRouter', () => {
       }
     );
 
-    const state = router.getStateForAction({ type: NavigationActions.INIT });
-    expect(state.routes[state.index].routeName).toEqual('OtherNestedSwitch');
+    const { navigateTo, getSubState } = getRouterTestHelper(router);
+    expect(getSubState(1).routeName).toEqual('OtherNestedSwitch');
 
-    const state2 = router.getStateForAction(
-      {
-        type: NavigationActions.NAVIGATE,
-        routeName: 'Bar',
-      },
-      state
-    );
-    expect(state2.routes[state2.index].routeName).toEqual('Bar');
+    navigateTo('Bar');
+    expect(getSubState(1).routeName).toEqual('Bar');
 
-    const state3 = router.getStateForAction(
-      {
-        type: NavigationActions.NAVIGATE,
-        routeName: 'NestedSwitch',
-      },
-      state2
-    );
-    const state4 = router.getStateForAction(
-      {
-        type: NavigationActions.NAVIGATE,
-        routeName: 'Bar',
-      },
-      state3
-    );
-    let activeState4 = state4.routes[state4.index];
-    expect(activeState4.routeName).toEqual('NestedSwitch');
-    expect(activeState4.routes[activeState4.index].routeName).toEqual('Bar');
+    navigateTo('NestedSwitch');
+    navigateTo('Bar');
+
+    expect(getSubState(1).routeName).toEqual('NestedSwitch');
+    expect(getSubState(2).routeName).toEqual('Bar');
   });
 
   // https://github.com/react-navigation/react-navigation.github.io/issues/117#issuecomment-385597628
@@ -265,39 +205,13 @@ describe('SwitchRouter', () => {
       }
     );
 
-    const state = router.getStateForAction({ type: NavigationActions.INIT });
-    expect(state.routes[state.index].routeName).toEqual('Login');
+    const { navigateTo, getSubState } = getRouterTestHelper(router);
+    expect(getSubState(1).routeName).toEqual('Login');
 
-    const state2 = router.getStateForAction(
-      {
-        type: NavigationActions.NAVIGATE,
-        routeName: 'Home',
-      },
-      state
-    );
-    expect(state2.routes[state2.index].routeName).toEqual('Home');
+    navigateTo('Home');
+    expect(getSubState(1).routeName).toEqual('Home');
   });
 });
-
-// A simple helper that makes it easier to write basic routing tests
-// As we generally want to apply one action after the other,
-// it's often convenient to manipulate a structure that keeps the router state
-const getRouterTestHelper = (
-  router,
-  initAction = {
-    type: NavigationActions.INIT,
-  }
-) => {
-  let state = router.getStateForAction(initAction);
-  const applyAction = action => {
-    state = router.getStateForAction(action, state);
-    return state;
-  };
-
-  const getState = () => state;
-
-  return { applyAction, getState };
-};
 
 const getExampleRouter = (config = {}) => {
   const PlainScreen = () => <div />;
