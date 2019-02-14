@@ -88,7 +88,7 @@ describe('SwitchRouter', () => {
     const { navigateTo, back, getState } = getRouterTestHelper(
       getExampleRouter({ backBehavior: 'history' })
     );
-    expect(getState().routeKeyHistory).toMatchObject(['A']);
+    expect(getState().routeKeyHistory).toEqual(['A']);
 
     navigateTo('B');
     expect(getState().index).toEqual(1);
