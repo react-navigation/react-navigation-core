@@ -1,11 +1,17 @@
-{
-  "extends": "eslint-config-satya164",
+// eslint-disable-next-line import/no-commonjs
+module.exports = {
+  "extends": ["eslint-config-satya164"],
 
   "plugins": ["react-native-globals"],
 
   "env": {
-    "es6": true,
     "react-native-globals/all": true,
+  },
+
+  "settings": {
+    "react": {
+      "version": "detect"
+    }
   },
 
   "rules": {
@@ -13,4 +19,5 @@
     "react/sort-comp": "off",
     "jest/no-disabled-tests": "off",
   }
-}
+};
+
