@@ -43,7 +43,7 @@
   "homepage": "https://github.com/react-navigation/react-navigation-core#readme",
   "dependencies": {
     "create-react-context": "0.2.2",
-    "hoist-non-react-statics": "^3.0.1",
+    "hoist-non-react-statics": "^2.5.5",
     "path-to-regexp": "^1.7.0",
     "query-string": "^6.2.0",
     "react-is": "^16.6.3"
@@ -69,7 +69,6 @@
     "jest": "^24.1.0",
     "jest-expo": "^32.0.0",
     "prettier": "^1.13.6",
-    "prop-types": "^15.7.2",
     "react": "16.6.3",
     "react-dom": "16.6.3",
     "react-native": "^0.58.6",
