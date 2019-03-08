@@ -45,6 +45,11 @@ module.exports = {
     return require('./routers/SwitchRouter').default;
   },
 
+  // RouterTypes
+  get RouterTypes() {
+    return require('./routers/RouterTypes.json');
+  },
+
   get createConfigGetter() {
     return require('./routers/createConfigGetter').default;
   },

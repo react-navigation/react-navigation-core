@@ -1,5 +1,6 @@
 import NavigationActions from '../NavigationActions';
 import StackActions from './StackActions';
+import RouterTypes from './RouterTypes.json';
 import createConfigGetter from './createConfigGetter';
 import getScreenForRouteName from './getScreenForRouteName';
 import StateUtils from '../StateUtils';
@@ -124,6 +125,8 @@ export default (routeConfigs, stackConfig = {}) => {
   } = createPathParser(childRouters, routeConfigs, stackConfig);
 
   return {
+    type: RouterTypes.STACK,
+
     childRouters,
 
     getComponentForState(state) {

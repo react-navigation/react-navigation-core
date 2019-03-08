@@ -4,6 +4,7 @@ import createConfigGetter from './createConfigGetter';
 
 import NavigationActions from '../NavigationActions';
 import StackActions from './StackActions';
+import RouterTypes from './RouterTypes.json';
 import validateRouteConfigMap from './validateRouteConfigMap';
 import { createPathParser } from './pathUtils';
 
@@ -141,6 +142,8 @@ export default (routeConfigs, config = {}) => {
   }
 
   return {
+    type: RouterTypes.SWITCH,
+
     childRouters,
 
     getActionCreators(route, stateKey) {
@@ -312,6 +315,13 @@ export default (routeConfigs, config = {}) => {
         }
         let childState = routes[i];
         if (childRouter) {
+          if (
+            childRouter.type === RouterTypes.STACK &&
+            action.type === StackActions.RESET
+          ) {
+            return false;
+          }
+
           childState = childRouter.getStateForAction(action, childState);
         }
         if (!childState) {
