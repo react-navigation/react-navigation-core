@@ -15,7 +15,7 @@
     "test": "jest",
     "lint": "eslint .",
     "format": "eslint . --fix",
-    "babel": "babel --no-babelrc --plugins=@babel/transform-block-scoping,@babel/transform-modules-commonjs,@babel/transform-react-jsx,@babel/proposal-class-properties,@babel/proposal-object-rest-spread,@babel/transform-flow-strip-types src --copy-files --out-dir dist --ignore '**/__tests__/**','*.ts'",
+    "babel": "babel --no-babelrc --plugins=@babel/transform-block-scoping,@babel/transform-modules-commonjs,@babel/transform-react-jsx,@babel/proposal-class-properties,@babel/proposal-object-rest-spread,@babel/transform-flow-strip-types src --out-dir dist --ignore '**/__tests__/**','*.ts'",
     "tsc": "tsc",
     "build": "yarn babel --out-dir dist && yarn tsc",
     "dev": "yarn babel --watch src --out-dir example/node_modules/@react-navigation/core/dist",
