@@ -51,6 +51,6 @@ const getSubStateRecursive = (state, level = 1) => {
     return state;
   } else {
     const directSubState = state.routes[state.index];
-    return getSubStateResurcive(directSubState, level - 1);
+    return getSubStateRecursive(directSubState, level - 1);
   }
 };
