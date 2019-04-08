@@ -46,7 +46,7 @@ export const getRouterTestHelper = (router, initAction = defaultInitAction) => {
   return { applyAction, navigateTo, back, getState, getSubState };
 };
 
-const getSubStateResurcive = (state, level = 1) => {
+const getSubStateRecursive = (state, level = 1) => {
   if (level === 0) {
     return state;
   } else {
