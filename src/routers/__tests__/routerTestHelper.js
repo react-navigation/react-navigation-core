@@ -40,7 +40,7 @@ export const getRouterTestHelper = (router, initAction = defaultInitAction) => {
   const getState = () => state;
 
   const getSubState = (level = 1) => {
-    return getSubStateResurcive(state, level);
+    return getSubStateRecursive(state, level);
   };
 
   return { applyAction, navigateTo, back, getState, getSubState };
