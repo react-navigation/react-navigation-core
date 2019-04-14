@@ -14,6 +14,7 @@ function childrenUpdateWithoutSwitchingIndex(actionType) {
     NavigationActions.SET_PARAMS,
     // Todo: make SwitchRouter not depend on StackActions..
     StackActions.COMPLETE_TRANSITION,
+    StackActions.RESET,
   ].includes(actionType);
 }
 

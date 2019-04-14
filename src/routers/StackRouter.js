@@ -480,7 +480,7 @@ export default (routeConfigs, stackConfig = {}) => {
         }
       }
 
-      if (action.type === StackActions.RESET) {
+      if (action.type === StackActions.RESET && (action.key === null || action.key == state.key)) {
         // Only handle reset actions that are unspecified or match this state key
         if (action.key != null && action.key != state.key) {
           // Deliberately use != instead of !== so we can match null with
@@ -581,7 +581,8 @@ export default (routeConfigs, stackConfig = {}) => {
               // because people don't expect these actions to switch the active route
               action.type === NavigationActions.SET_PARAMS ||
                 action.type === StackActions.COMPLETE_TRANSITION ||
-                action.type.includes('DRAWER')
+                action.type.includes('DRAWER') ||
+                action.type === StackActions.RESET
             );
           }
         }
