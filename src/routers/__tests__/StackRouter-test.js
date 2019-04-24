@@ -2033,3 +2033,295 @@ describe('StackRouter', () => {
     expect(activeState4.routes[activeState4.index].routeName).toEqual('Bar');
   });
 });
+
+it('Handles the DROP action', () => {
+  const ScreenA = () => <div />;
+  const ScreenB = () => <div />;
+  const ScreenC = () => <div />;
+
+  const router = StackRouter({
+    ScreenA: {
+      screen: ScreenA,
+    },
+    ScreenB: {
+      screen: ScreenB,
+    },
+    ScreenC: {
+      screen: ScreenC,
+    },
+  });
+
+  const state1 = router.getStateForAction({ type: NavigationActions.INIT });
+
+  const state2 = router.getStateForAction(
+    {
+      type: NavigationActions.NAVIGATE,
+      routeName: 'ScreenB',
+    },
+    state1
+  );
+
+  const state3 = router.getStateForAction(
+    {
+      type: NavigationActions.NAVIGATE,
+      routeName: 'ScreenC',
+    },
+    state2
+  );
+
+  expect(state3.routes.length).toEqual(3);
+  expect(state3.routes[state3.index].routeName).toEqual('ScreenC');
+  expect(state3).toEqual({
+    index: 2,
+    isTransitioning: true,
+    key: 'StackRouterRoot',
+    routes: [
+      {
+        key: 'id-0',
+        routeName: 'ScreenA',
+      },
+      {
+        key: 'id-1',
+        routeName: 'ScreenB',
+      },
+      {
+        key: 'id-2',
+        routeName: 'ScreenC',
+      },
+    ],
+  });
+
+  const state4 = router.getStateForAction(
+    {
+      type: StackActions.DROP,
+      key: state3.key,
+    },
+    state3
+  );
+
+  expect(state4.routes.length).toEqual(1);
+  expect(state4.routes[state4.index].routeName).toEqual('ScreenC');
+  expect(state4).toEqual({
+    index: 0,
+    isTransitioning: false,
+    key: 'StackRouterRoot',
+    routes: [
+      {
+        key: 'id-2',
+        routeName: 'ScreenC',
+      },
+    ],
+  });
+});
+
+it('Handles the NAVIGATE action with "shouldDropStackOnTransitionComplete" equal to true', () => {
+  const ScreenA = () => <div />;
+  const ScreenB = () => <div />;
+  const ScreenC = () => <div />;
+
+  const router = StackRouter({
+    ScreenA: {
+      screen: ScreenA,
+    },
+    ScreenB: {
+      screen: ScreenB,
+    },
+    ScreenC: {
+      screen: ScreenC,
+    },
+  });
+
+  const state1 = router.getStateForAction({ type: NavigationActions.INIT });
+
+  const state2 = router.getStateForAction(
+    {
+      type: NavigationActions.NAVIGATE,
+      routeName: 'ScreenB',
+    },
+    state1
+  );
+
+  const state3 = router.getStateForAction(
+    {
+      type: StackActions.COMPLETE_TRANSITION,
+      toChildKey: state2.routes[state2.index].key,
+    },
+    state2
+  );
+
+  expect(state3.routes.length).toEqual(2);
+  expect(state3.routes[state3.index].routeName).toEqual('ScreenB');
+  expect(state3).toEqual({
+    index: 1,
+    isTransitioning: false,
+    key: 'StackRouterRoot',
+    routes: [
+      {
+        key: 'id-0',
+        routeName: 'ScreenA',
+      },
+      {
+        key: 'id-1',
+        routeName: 'ScreenB',
+      },
+    ],
+  });
+
+  const state4 = router.getStateForAction(
+    {
+      type: NavigationActions.NAVIGATE,
+      routeName: 'ScreenC',
+      shouldDropStackOnTransitionComplete: true,
+    },
+    state3
+  );
+
+  expect(state4.routes.length).toEqual(3);
+  expect(state4.routes[state4.index].routeName).toEqual('ScreenC');
+  expect(state4).toEqual({
+    index: 2,
+    isTransitioning: true,
+    key: 'StackRouterRoot',
+    routes: [
+      {
+        key: 'id-0',
+        routeName: 'ScreenA',
+      },
+      {
+        key: 'id-1',
+        routeName: 'ScreenB',
+      },
+      {
+        key: 'id-2',
+        routeName: 'ScreenC',
+      },
+    ],
+    shouldDropStackOnTransitionComplete: true,
+  });
+
+  const state5 = router.getStateForAction(
+    {
+      type: StackActions.COMPLETE_TRANSITION,
+      toChildKey: state4.routes[state4.index].key,
+    },
+    state4
+  );
+
+  expect(state5.routes.length).toEqual(1);
+  expect(state5.routes[state5.index].routeName).toEqual('ScreenC');
+  expect(state5).toEqual({
+    index: 0,
+    isTransitioning: false,
+    key: 'StackRouterRoot',
+    routes: [
+      {
+        key: 'id-2',
+        routeName: 'ScreenC',
+      },
+    ],
+  });
+});
+
+it(`Handles the "B" NAVIGATE action, which runs right after "A" NAVIGATE action
+    with "shouldDropStackOnTransitionComplete" equal to true
+    and before corresponding to "A" COMPLETE_TRANSITION action is fired`, () => {
+  const Home = () => <div />;
+  const ScreenA = () => <div />;
+  const ScreenB = () => <div />;
+
+  const router = StackRouter({
+    Home: {
+      screen: Home,
+    },
+    A: {
+      screen: ScreenA,
+    },
+    B: {
+      screen: ScreenB,
+    },
+  });
+
+  const state1 = router.getStateForAction({ type: NavigationActions.INIT });
+
+  const state2 = router.getStateForAction(
+    {
+      type: NavigationActions.NAVIGATE,
+      routeName: 'A',
+      shouldDropStackOnTransitionComplete: true,
+    },
+    state1
+  );
+
+  expect(state2).toEqual({
+    index: 1,
+    isTransitioning: true,
+    key: 'StackRouterRoot',
+    routes: [
+      {
+        key: 'id-0',
+        routeName: 'Home',
+      },
+      {
+        key: 'id-1',
+        routeName: 'A',
+      },
+    ],
+    shouldDropStackOnTransitionComplete: true,
+  });
+
+  const state3 = router.getStateForAction(
+    {
+      type: NavigationActions.NAVIGATE,
+      routeName: 'B',
+    },
+    state2
+  );
+
+  expect(state3).toEqual({
+    index: 2,
+    isTransitioning: true,
+    key: 'StackRouterRoot',
+    routes: [
+      {
+        key: 'id-0',
+        routeName: 'Home',
+      },
+      {
+        key: 'id-1',
+        routeName: 'A',
+      },
+      {
+        key: 'id-2',
+        routeName: 'B',
+      },
+    ],
+  });
+
+  const state4 = router.getStateForAction(
+    {
+      type: StackActions.COMPLETE_TRANSITION,
+      toChildKey: state3.routes[state3.index].key,
+    },
+    state3
+  );
+
+  expect(state4).toEqual({
+    index: 2,
+    isTransitioning: false,
+    key: 'StackRouterRoot',
+    routes: [
+      {
+        key: 'id-0',
+        routeName: 'Home',
+      },
+      {
+        key: 'id-1',
+        routeName: 'A',
+      },
+      {
+        key: 'id-2',
+        routeName: 'B',
+      },
+    ],
+  });
+});
