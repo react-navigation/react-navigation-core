@@ -344,6 +344,8 @@ export default (routeConfigs, stackConfig = {}) => {
         return {
           ...StateUtils.push(state, route),
           isTransitioning: action.immediate !== true,
+          shouldDropStackOnTransitionComplete:
+            action.shouldDropStackOnTransitionComplete,
         };
       } else if (
         action.type === StackActions.PUSH &&
@@ -469,7 +471,10 @@ export default (routeConfigs, stackConfig = {}) => {
         state.isTransitioning
       ) {
         return {
-          ...state,
+          ...(state.shouldDropStackOnTransitionComplete
+            ? StateUtils.drop(state)
+            : state),
+          shouldDropStackOnTransitionComplete: undefined,
           isTransitioning: false,
         };
       }
