@@ -142,6 +142,7 @@ export default (routeConfigs, stackConfig = {}) => {
     getActionCreators(route, navStateKey) {
       return {
         ...getCustomActionCreators(route, navStateKey),
+        drop: (key = navStateKey) => StackActions.drop(key),
         pop: (n, params) =>
           StackActions.pop({
             n,
@@ -409,6 +410,19 @@ export default (routeConfigs, stackConfig = {}) => {
             routes: [state.routes[0]],
           };
         }
+        return state;
+      }
+
+      // Handle drop action
+      if (action.type === StackActions.DROP) {
+        if (state && state.key === action.key) {
+          return {
+            ...StateUtils.drop(state),
+            shouldDropStackOnTransitionComplete: undefined,
+            isTransitioning: false,
+          };
+        }
+
         return state;
       }
 

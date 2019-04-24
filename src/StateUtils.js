@@ -199,6 +199,18 @@ const StateUtils = {
       routes,
     };
   },
+
+  drop(state) {
+    if (state.index > 0) {
+      return {
+        ...state,
+        index: 0,
+        routes: [state.routes[state.index]],
+      };
+    }
+
+    return state;
+  },
 };
 
 export default StateUtils;

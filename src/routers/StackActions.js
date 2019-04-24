@@ -1,9 +1,15 @@
+export const DROP = 'Navigation/DROP';
 export const POP = 'Navigation/POP';
 export const POP_TO_TOP = 'Navigation/POP_TO_TOP';
 export const PUSH = 'Navigation/PUSH';
 export const RESET = 'Navigation/RESET';
 export const REPLACE = 'Navigation/REPLACE';
 export const COMPLETE_TRANSITION = 'Navigation/COMPLETE_TRANSITION';
+
+export const drop = key => ({
+  type: DROP,
+  key,
+});
 
 export const pop = payload => ({
   type: POP,
