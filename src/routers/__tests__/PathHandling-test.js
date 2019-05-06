@@ -609,13 +609,13 @@ const performRouteNameAsPathDisabledTest = createTestRouter => {
 };
 
 describe('Stack router handles disableRouteNamePaths', () => {
-  performRouterTest(StackRouter);
+  performRouteNameAsPathDisabledTest(StackRouter);
 });
 
 describe('Switch router handles disableRouteNamePaths', () => {
-  performRouterTest(SwitchRouter);
+  performRouteNameAsPathDisabledTest(SwitchRouter);
 });
 
 describe('Tab router handles disableRouteNamePaths', () => {
-  performRouterTest(TabRouter);
+  performRouteNameAsPathDisabledTest(TabRouter);
 });
