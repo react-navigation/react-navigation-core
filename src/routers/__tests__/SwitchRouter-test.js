@@ -3,7 +3,7 @@
 import React from 'react';
 import SwitchRouter from '../SwitchRouter';
 import StackRouter from '../StackRouter';
-import NavigationActions from '../../NavigationActions';
+import * as NavigationActions from '../../NavigationActions';
 import { getRouterTestHelper } from './routerTestHelper';
 
 describe('SwitchRouter', () => {
@@ -34,11 +34,9 @@ describe('SwitchRouter', () => {
   });
 
   it('ignores back by default', () => {
-    const { navigateTo, back, getState } = getRouterTestHelper(
-      getExampleRouter()
-    );
+    const { jumpTo, back, getState } = getRouterTestHelper(getExampleRouter());
 
-    navigateTo('B');
+    jumpTo('B');
     expect(getState().index).toEqual(1);
 
     back();
@@ -46,16 +44,16 @@ describe('SwitchRouter', () => {
   });
 
   it('handles initialRoute backBehavior', () => {
-    const { navigateTo, back, getState } = getRouterTestHelper(
+    const { jumpTo, back, getState } = getRouterTestHelper(
       getExampleRouter({ backBehavior: 'initialRoute', initialRouteName: 'B' })
     );
     expect(getState().routeKeyHistory).toBeUndefined();
     expect(getState().index).toEqual(1);
 
-    navigateTo('C');
+    jumpTo('C');
     expect(getState().index).toEqual(2);
 
-    navigateTo('A');
+    jumpTo('A');
     expect(getState().index).toEqual(0);
 
     back();
