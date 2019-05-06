@@ -6,7 +6,8 @@ import StackRouter from '../StackRouter';
 import TabRouter from '../TabRouter';
 import SwitchRouter from '../SwitchRouter';
 
-import NavigationActions from '../../NavigationActions';
+import * as NavigationActions from '../../NavigationActions';
+import * as StackActions from '../StackActions';
 import { _TESTING_ONLY_normalize_keys } from '../KeyGenerator.ts';
 
 beforeEach(() => {
@@ -27,7 +28,7 @@ Object.keys(ROUTERS).forEach(routerName => {
   const Router = ROUTERS[routerName];
 
   describe(`General router features - ${routerName}`, () => {
-    test(`title is configurable using navigationOptions and getScreenOptions - ${routerName}`, () => {
+    it(`title is configurable using navigationOptions and getScreenOptions - ${routerName}`, () => {
       class FooView extends React.Component {
         render() {
           return <div />;
@@ -89,7 +90,7 @@ Object.keys(ROUTERS).forEach(routerName => {
       ).toEqual('Baz-123');
     });
 
-    test(`set params works in ${routerName}`, () => {
+    it(`set params works in ${routerName}`, () => {
       class FooView extends React.Component {
         render() {
           return <div />;
@@ -116,7 +117,7 @@ Object.keys(ROUTERS).forEach(routerName => {
   });
 });
 
-test('Nested navigate behavior test', () => {
+it('Nested navigate behavior test', () => {
   const Leaf = () => <div />;
 
   const First = () => <div />;
@@ -185,7 +186,7 @@ test('Nested navigate behavior test', () => {
   expect(state5.routes[1].routes[0].index).toEqual(0); // first.first1
 });
 
-test('Handles no-op actions with tabs within stack router', () => {
+it('Handles no-op actions with tabs within stack router', () => {
   const BarView = () => <div />;
   const FooTabNavigator = () => <div />;
   FooTabNavigator.router = TabRouter({
@@ -216,7 +217,7 @@ test('Handles no-op actions with tabs within stack router', () => {
   expect(state2).toEqual(state3);
 });
 
-test('Handles deep action', () => {
+it('Handles deep action', () => {
   const BarView = () => <div />;
   const FooTabNavigator = () => <div />;
   FooTabNavigator.router = TabRouter({
@@ -253,7 +254,7 @@ test('Handles deep action', () => {
   expect(state2 && state2.routes[1].index).toEqual(1);
 });
 
-test('Handles the navigate action with params', () => {
+it('Handles the navigate action with params', () => {
   const FooTabNavigator = () => <div />;
   FooTabNavigator.router = TabRouter({
     Baz: { screen: () => <div /> },
@@ -289,7 +290,7 @@ test('Handles the navigate action with params', () => {
   ]);
 });
 
-test('Handles the setParams action', () => {
+it('Handles the setParams action', () => {
   const FooTabNavigator = () => <div />;
   FooTabNavigator.router = TabRouter({
     Baz: { screen: () => <div /> },
@@ -317,7 +318,7 @@ test('Handles the setParams action', () => {
   ]);
 });
 
-test('Supports lazily-evaluated getScreen', () => {
+it('Supports lazily-evaluated getScreen', () => {
   const BarView = () => <div />;
   const FooTabNavigator = () => <div />;
   FooTabNavigator.router = TabRouter({
@@ -353,7 +354,7 @@ test('Supports lazily-evaluated getScreen', () => {
   expect(state2).toEqual(state3);
 });
 
-test('Does not switch tab index when TabRouter child handles COMPLETE_NAVIGATION or SET_PARAMS', () => {
+it('Does not switch tab index when TabRouter child handles COMPLETE_NAVIGATION or SET_PARAMS', () => {
   const FooStackNavigator = () => <div />;
   const BarView = () => <div />;
   FooStackNavigator.router = StackRouter({
@@ -392,7 +393,8 @@ test('Does not switch tab index when TabRouter child handles COMPLETE_NAVIGATION
 
   const stateAfterCompleteTransition = TestRouter.getStateForAction(
     {
-      type: NavigationActions.COMPLETE_TRANSITION,
+      type: StackActions.COMPLETE_TRANSITION,
+      preserveFocus: true,
       key: state2.routes[0].key,
     },
     state3
@@ -400,6 +402,7 @@ test('Does not switch tab index when TabRouter child handles COMPLETE_NAVIGATION
   const stateAfterSetParams = TestRouter.getStateForAction(
     {
       type: NavigationActions.SET_PARAMS,
+      preserveFocus: true,
       key: state1.routes[0].routes[0].key,
       params: { key: 'value' },
     },
@@ -410,7 +413,7 @@ test('Does not switch tab index when TabRouter child handles COMPLETE_NAVIGATION
   expect(stateAfterSetParams.index).toEqual(1);
 });
 
-test('Inner actions are only unpacked if the current tab matches', () => {
+it('Inner actions are only unpacked if the current tab matches', () => {
   const PlainScreen = () => <div />;
   const ScreenA = () => <div />;
   const ScreenB = () => <div />;

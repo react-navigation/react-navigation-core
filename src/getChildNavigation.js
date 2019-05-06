@@ -55,7 +55,19 @@ function getChildNavigation(navigation, childKey, getCurrentParentNavigation) {
     };
   });
 
-  if (children[childKey]) {
+  let isFirstRouteInParent = true;
+
+  const parentNavigation = getCurrentParentNavigation();
+
+  if (parentNavigation) {
+    isFirstRouteInParent =
+      parentNavigation.state.routes.indexOf(childRoute) === 0;
+  }
+
+  if (
+    children[childKey] &&
+    children[childKey].isFirstRouteInParent() === isFirstRouteInParent
+  ) {
     children[childKey] = {
       ...children[childKey],
       ...actionHelpers,
@@ -99,6 +111,7 @@ function getChildNavigation(navigation, childKey, getCurrentParentNavigation) {
         }
         return false;
       },
+      isFirstRouteInParent: () => isFirstRouteInParent,
       dispatch: navigation.dispatch,
       getScreenProps: navigation.getScreenProps,
       dangerouslyGetParent: getCurrentParentNavigation,
