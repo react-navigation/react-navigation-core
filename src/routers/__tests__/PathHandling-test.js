@@ -557,10 +557,10 @@ const performRouterTest = createTestRouter => {
 };
 
 describe('Path handling for stack router', () => {
-  performRouterit(StackRouter);
+  performRouterTest(StackRouter);
 });
 describe('Path handling for switch router', () => {
-  performRouterit(SwitchRouter);
+  performRouterTest(SwitchRouter);
 });
 
 it('Handles nested switch routers', () => {
@@ -609,13 +609,13 @@ const performRouteNameAsPathDisabledTest = createTestRouter => {
 };
 
 describe('Stack router handles disableRouteNamePaths', () => {
-  performRouteNameAsPathDisabledit(StackRouter);
+  performRouterTest(StackRouter);
 });
 
 describe('Switch router handles disableRouteNamePaths', () => {
-  performRouteNameAsPathDisabledit(SwitchRouter);
+  performRouterTest(SwitchRouter);
 });
 
 describe('Tab router handles disableRouteNamePaths', () => {
-  performRouteNameAsPathDisabledit(TabRouter);
+  performRouterTest(TabRouter);
 });

@@ -485,7 +485,7 @@ const setupEventTest = (subscriptionKey, initialLastFocusEvent) => {
 };
 
 it('immediate back with uncompleted transition will focus first screen again', () => {
-  const { handlers, emitEvent } = setupEventit('key0', 'didFocus');
+  const { handlers, emitEvent } = setupEventTest('key0', 'didFocus');
   emitEvent({
     type: 'action',
     state: {
