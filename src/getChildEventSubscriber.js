@@ -98,7 +98,10 @@ export default function getChildEventSubscriber(
         action,
         type: eventName,
       };
-      const isTransitioning = !!state && state.isTransitioning;
+      const isTransitioning =
+        !!state &&
+        state.transitions &&
+        (state.transitions.pushing.length || state.transitions.popping.length);
 
       const previouslylastFocusEvent = lastFocusEvent;
 

@@ -231,7 +231,7 @@ it('Handles deep action', () => {
   const state1 = TestRouter.getStateForAction({ type: NavigationActions.INIT });
   const expectedState = {
     index: 0,
-    isTransitioning: false,
+    transitions: { pushing: [], popping: [] },
     key: 'StackRouterRoot',
     routes: [
       {
@@ -431,13 +431,13 @@ it('Inner actions are only unpacked if the current tab matches', () => {
   const screenApreState = {
     index: 0,
     key: 'Init',
-    isTransitioning: false,
+    transitions: { pushing: [], popping: [] },
     routeName: 'Foo',
     routes: [{ key: 'Init', routeName: 'Bar' }],
   };
   const preState = {
     index: 0,
-    isTransitioning: false,
+    transitions: { pushing: [], popping: [] },
     routes: [screenApreState],
   };
 

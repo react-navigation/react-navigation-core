@@ -123,7 +123,6 @@ export default (routeConfigs, config = {}) => {
     const initialState = {
       routes,
       index: initialRouteIndex,
-      isTransitioning: false,
     };
     if (backBehavior === 'history') {
       const initialKey = routes[initialRouteIndex].key;

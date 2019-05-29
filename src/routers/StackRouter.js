@@ -69,8 +69,11 @@ export default (routeConfigs, stackConfig = {}) => {
 
       return {
         key: 'StackRouterRoot',
-        isTransitioning: false,
         index: 0,
+        transitions: {
+          pushing: [],
+          popping: [],
+        },
         routes: [
           {
             params: action.params,
@@ -108,7 +111,10 @@ export default (routeConfigs, stackConfig = {}) => {
     };
     return {
       key: 'StackRouterRoot',
-      isTransitioning: false,
+      transitions: {
+        pushing: [],
+        popping: [],
+      },
       index: 0,
       routes: [route],
     };
@@ -254,10 +260,17 @@ export default (routeConfigs, stackConfig = {}) => {
               );
               return {
                 ...newState,
-                isTransitioning:
-                  state.index !== newState.index
-                    ? action.immediate !== true
-                    : state.isTransitioning,
+                transitions:
+                  state.index !== newState.index && action.immediate !== true
+                    ? {
+                        // Figure out which routes should transition
+                        pushing: [],
+                        popping: [],
+                      }
+                    : {
+                        pushing: [],
+                        popping: [],
+                      },
               };
             }
           }
@@ -297,10 +310,10 @@ export default (routeConfigs, stackConfig = {}) => {
 
           // Remove the now unused routes at the tail of the routes array
           const routes = state.routes.slice(0, lastRouteIndex + 1);
+          const route = state.routes[lastRouteIndex];
 
           // Apply params if provided, otherwise leave route identity intact
           if (action.params) {
-            const route = state.routes[lastRouteIndex];
             routes[lastRouteIndex] = {
               ...route,
               params: {
@@ -309,13 +322,17 @@ export default (routeConfigs, stackConfig = {}) => {
               },
             };
           }
-          // Return state with new index. Change isTransitioning only if index has changed
+
           return {
             ...state,
-            isTransitioning:
-              state.index !== lastRouteIndex
-                ? action.immediate !== true
-                : state.isTransitioning,
+            transitions: {
+              ...state.transitions,
+              pushing:
+                // Return state with new index. Change transitioning routes only if index has changed
+                state.index !== lastRouteIndex && action.immediate !== true
+                  ? [...state.transitions.pushing, route.key]
+                  : state.transitions.pushing,
+            },
             index: lastRouteIndex,
             routes,
           };
@@ -347,7 +364,13 @@ export default (routeConfigs, stackConfig = {}) => {
         }
         return {
           ...StateUtils.push(state, route),
-          isTransitioning: action.immediate !== true,
+          transitions: {
+            ...state.transitions,
+            pushing:
+              action.immediate !== true
+                ? [...state.transitions.pushing, route.key]
+                : state.transitions.pushing,
+          },
         };
       } else if (
         action.type === StackActions.PUSH &&
@@ -389,7 +412,13 @@ export default (routeConfigs, stackConfig = {}) => {
               };
               return {
                 ...StateUtils.push(state, route),
-                isTransitioning: action.immediate !== true,
+                transitions: {
+                  ...state.transitions,
+                  pushing:
+                    action.immediate !== true
+                      ? [...state.transitions.pushing, route.key]
+                      : state.transitions.pushing,
+                },
               };
             }
           }
@@ -409,7 +438,16 @@ export default (routeConfigs, stackConfig = {}) => {
         if (state.index > 0) {
           return {
             ...state,
-            isTransitioning: action.immediate !== true,
+            transitions: {
+              ...state.transitions,
+              popping:
+                action.immediate !== true && state.routes.length > 1
+                  ? [
+                      ...state.transitions.popping,
+                      state.routes[state.routes.length - 1].key,
+                    ]
+                  : state.transitions.popping,
+            },
             index: 0,
             routes: [state.routes[0]],
           };
@@ -456,12 +494,20 @@ export default (routeConfigs, stackConfig = {}) => {
       if (
         action.type === StackActions.COMPLETE_TRANSITION &&
         (action.key == null || action.key === state.key) &&
-        action.toChildKey === state.routes[state.index].key &&
-        state.isTransitioning
+        (state.transitions.pushing.length || state.transitions.popping.length)
       ) {
+        const { pushing, popping } = state.transitions;
+
         return {
           ...state,
-          isTransitioning: false,
+          transitions: {
+            pushing: action.toChildKey
+              ? pushing.filter(key => key !== action.toChildKey)
+              : [],
+            popping: action.toChildKey
+              ? popping.filter(key => key !== action.toChildKey)
+              : [],
+          },
         };
       }
 
@@ -533,14 +579,18 @@ export default (routeConfigs, stackConfig = {}) => {
         action.type === StackActions.POP
       ) {
         const { key, n, immediate } = action;
+        let backRoute;
         let backRouteIndex = state.index;
         if (action.type === StackActions.POP && n != null) {
           // determine the index to go back *from*. In this case, n=1 means to go
           // back from state.index, as if it were a normal "BACK" action
           backRouteIndex = Math.max(1, state.index - n + 1);
+          backRoute = state.routes[state.index];
         } else if (key) {
-          const backRoute = state.routes.find(route => route.key === key);
+          backRoute = state.routes.find(route => route.key === key);
           backRouteIndex = state.routes.indexOf(backRoute);
+        } else {
+          backRoute = state.routes[state.index];
         }
 
         if (backRouteIndex > 0) {
@@ -548,7 +598,13 @@ export default (routeConfigs, stackConfig = {}) => {
             ...state,
             routes: state.routes.slice(0, backRouteIndex),
             index: backRouteIndex - 1,
-            isTransitioning: immediate !== true,
+            transitions: {
+              ...state.transitions,
+              popping:
+                immediate !== true && backRoute
+                  ? [...state.transitions.popping, backRoute.key]
+                  : state.transitions.popping,
+            },
           };
         }
       }

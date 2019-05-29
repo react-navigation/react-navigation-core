@@ -91,7 +91,7 @@ describe('StackRouter', () => {
     expect(
       router.getComponentForState({
         index: 0,
-        isTransitioning: false,
+        transitions: { pushing: [], popping: [] },
         routes: [
           { key: 'a', routeName: 'foo' },
           { key: 'b', routeName: 'bar' },
@@ -102,7 +102,7 @@ describe('StackRouter', () => {
     expect(
       router.getComponentForState({
         index: 1,
-        isTransitioning: false,
+        transitions: { pushing: [], popping: [] },
         routes: [
           { key: 'a', routeName: 'foo' },
           { key: 'b', routeName: 'bar' },
@@ -126,7 +126,7 @@ describe('StackRouter', () => {
     expect(
       router.getComponentForState({
         index: 0,
-        isTransitioning: false,
+        transitions: { pushing: [], popping: [] },
         routes: [
           { key: 'a', routeName: 'foo' },
           { key: 'b', routeName: 'bar' },
@@ -137,7 +137,7 @@ describe('StackRouter', () => {
     expect(
       router.getComponentForState({
         index: 1,
-        isTransitioning: false,
+        transitions: { pushing: [], popping: [] },
         routes: [
           { key: 'a', routeName: 'foo' },
           { key: 'b', routeName: 'bar' },
@@ -365,7 +365,7 @@ describe('StackRouter', () => {
     const initState = TestRouter.getStateForAction(NavigationActions.init());
     expect(initState).toEqual({
       index: 0,
-      isTransitioning: false,
+      transitions: { pushing: [], popping: [] },
       key: 'StackRouterRoot',
       routes: [{ key: 'id-0', routeName: 'foo' }],
     });
@@ -443,13 +443,13 @@ describe('StackRouter', () => {
     const state2 = TestStackRouter.getStateForAction(action);
     expect(state2).toEqual({
       index: 0,
-      isTransitioning: false,
+      transitions: { pushing: [], popping: [] },
       key: 'StackRouterRoot',
       routes: [
         {
           index: 0,
           key: 'id-1',
-          isTransitioning: false,
+          transitions: { pushing: [], popping: [] },
           routeName: 'foo',
           params: {
             fooThing: '22',
@@ -534,7 +534,7 @@ describe('StackRouter', () => {
 
     const state = {
       index: 3,
-      isTransitioning: false,
+      transitions: { pushing: [], popping: [] },
       routes: [
         { key: 'A', routeName: 'foo' },
         { key: 'B', routeName: 'bar', params: { bazId: '321' } },
@@ -545,7 +545,7 @@ describe('StackRouter', () => {
     const poppedState = TestRouter.getStateForAction(StackActions.pop(), state);
     expect(poppedState.routes.length).toBe(3);
     expect(poppedState.index).toBe(2);
-    expect(poppedState.isTransitioning).toBe(true);
+    expect(poppedState.transitions).toEqual({ pushing: [], popping: ['D'] });
 
     const poppedState2 = TestRouter.getStateForAction(
       StackActions.pop({ n: 2, immediate: true }),
@@ -553,7 +553,7 @@ describe('StackRouter', () => {
     );
     expect(poppedState2.routes.length).toBe(2);
     expect(poppedState2.index).toBe(1);
-    expect(poppedState2.isTransitioning).toBe(false);
+    expect(poppedState2.transitions).toEqual({ pushing: [], popping: [] });
 
     const poppedState3 = TestRouter.getStateForAction(
       StackActions.pop({ n: 5 }),
@@ -561,7 +561,7 @@ describe('StackRouter', () => {
     );
     expect(poppedState3.routes.length).toBe(1);
     expect(poppedState3.index).toBe(0);
-    expect(poppedState3.isTransitioning).toBe(true);
+    expect(poppedState3.transitions).toEqual({ pushing: [], popping: ['D'] });
   });
 
   it('popToTop works as expected', () => {
@@ -572,7 +572,7 @@ describe('StackRouter', () => {
 
     const state = {
       index: 2,
-      isTransitioning: false,
+      transitions: { pushing: [], popping: [] },
       routes: [
         { key: 'A', routeName: 'foo' },
         { key: 'B', routeName: 'bar', params: { bazId: '321' } },
@@ -585,7 +585,7 @@ describe('StackRouter', () => {
     );
     expect(poppedState.routes.length).toBe(1);
     expect(poppedState.index).toBe(0);
-    expect(poppedState.isTransitioning).toBe(true);
+    expect(poppedState.transitions).toEqual({ popping: ['C'], pushing: [] });
     const poppedState2 = TestRouter.getStateForAction(
       StackActions.popToTop(),
       poppedState
@@ -597,7 +597,10 @@ describe('StackRouter', () => {
     );
     expect(poppedImmediatelyState.routes.length).toBe(1);
     expect(poppedImmediatelyState.index).toBe(0);
-    expect(poppedImmediatelyState.isTransitioning).toBe(false);
+    expect(poppedImmediatelyState.transitions).toEqual({
+      pushing: [],
+      popping: [],
+    });
   });
 
   it('Navigate does not push duplicate routeName', () => {
@@ -700,7 +703,7 @@ describe('StackRouter', () => {
       state
     );
 
-    expect(state2.isTransitioning).toEqual(true);
+    expect(state2.transitions).toEqual({ popping: [], pushing: ['id-5'] });
     expect(state2.index).toEqual(1);
     expect(state2.routes[1].index).toEqual(1);
     expect(state2.routes[1].routes[1].index).toEqual(1);
@@ -889,7 +892,7 @@ describe('StackRouter', () => {
     const state = router.getStateForAction({ type: NavigationActions.INIT });
     expect(state).toEqual({
       index: 0,
-      isTransitioning: false,
+      transitions: { pushing: [], popping: [] },
       key: 'StackRouterRoot',
       routes: [
         {
@@ -917,7 +920,7 @@ describe('StackRouter', () => {
     );
     expect(state3).toEqual({
       index: 0,
-      isTransitioning: false,
+      transitions: { pushing: [], popping: [] },
       key: 'StackRouterRoot',
       routes: [
         {
@@ -1055,7 +1058,10 @@ describe('StackRouter', () => {
       state
     );
     expect(state2 && state2.index).toEqual(1);
-    expect(state2 && state2.isTransitioning).toEqual(true);
+    expect(state2 && state2.transitions).toEqual({
+      popping: [],
+      pushing: ['id-1'],
+    });
     const state3 = router.getStateForAction(
       {
         type: StackActions.COMPLETE_TRANSITION,
@@ -1064,7 +1070,7 @@ describe('StackRouter', () => {
       state2
     );
     expect(state3 && state3.index).toEqual(1);
-    expect(state3 && state3.isTransitioning).toEqual(false);
+    expect(state3 && state3.transitions).toEqual({ pushing: [], popping: [] });
   });
 
   it('Completion action does not work with incorrect key', () => {
@@ -1080,7 +1086,7 @@ describe('StackRouter', () => {
     const state = {
       key: 'StackKey',
       index: 1,
-      isTransitioning: true,
+      transitions: { pushing: ['b'], popping: [] },
       routes: [{ key: 'a', routeName: 'Foo' }, { key: 'b', routeName: 'Foo' }],
     };
     const outputState = router.getStateForAction(
@@ -1091,7 +1097,7 @@ describe('StackRouter', () => {
       },
       state
     );
-    expect(outputState.isTransitioning).toEqual(true);
+    expect(outputState.transitions).toEqual({ pushing: ['b'], popping: [] });
   });
 
   it('Completion action does not work with incorrect toChildKey', () => {
@@ -1107,19 +1113,19 @@ describe('StackRouter', () => {
     const state = {
       key: 'StackKey',
       index: 1,
-      isTransitioning: true,
+      transitions: { pushing: ['b'], popping: [] },
       routes: [{ key: 'a', routeName: 'Foo' }, { key: 'b', routeName: 'Foo' }],
     };
     const outputState = router.getStateForAction(
       {
         type: StackActions.COMPLETE_TRANSITION,
-        // for this action to toggle isTransitioning, toChildKey should be state.routes[state.index].key,
+        // for this action to toggle transitions, toChildKey should be state.routes[state.index].key,
         toChildKey: 'incorrect',
         key: 'StackKey',
       },
       state
     );
-    expect(outputState.isTransitioning).toEqual(true);
+    expect(outputState.transitions).toEqual({ pushing: ['b'], popping: [] });
   });
 
   it('Back action parent is prioritized over inactive child routers', () => {
@@ -1150,6 +1156,7 @@ describe('StackRouter', () => {
         { routeName: 'foo', key: 'f1' },
         { routeName: 'boo', key: 'z' },
       ],
+      transitions: { pushing: [], popping: [] },
     };
     const testState = TestRouter.getStateForAction(
       { type: NavigationActions.BACK },
@@ -1178,7 +1185,7 @@ describe('StackRouter', () => {
     const state = router.getStateForAction({ type: NavigationActions.INIT });
     expect(state).toEqual({
       index: 0,
-      isTransitioning: false,
+      transitions: { pushing: [], popping: [] },
       key: 'StackRouterRoot',
       routes: [
         {
@@ -1206,7 +1213,7 @@ describe('StackRouter', () => {
     );
     expect(state3).toEqual({
       index: 0,
-      isTransitioning: false,
+      transitions: { pushing: [], popping: [] },
       key: 'StackRouterRoot',
       routes: [
         {
@@ -1236,7 +1243,7 @@ describe('StackRouter', () => {
 
     const state = {
       index: 0,
-      isTransitioning: false,
+      transitions: { pushing: [], popping: [] },
       routes: [
         {
           index: 1,
@@ -1321,7 +1328,7 @@ describe('StackRouter', () => {
     const state = router.getStateForAction({ type: NavigationActions.INIT });
     expect(state).toEqual({
       index: 0,
-      isTransitioning: false,
+      transitions: { pushing: [], popping: [] },
       key: 'StackRouterRoot',
       routes: [
         {
@@ -1345,7 +1352,7 @@ describe('StackRouter', () => {
     const state = router.getStateForAction({ type: NavigationActions.INIT });
     expect(state).toEqual({
       index: 0,
-      isTransitioning: false,
+      transitions: { pushing: [], popping: [] },
       key: 'StackRouterRoot',
       routes: [
         {
@@ -1371,7 +1378,7 @@ describe('StackRouter', () => {
     const state = router.getStateForAction({ type: NavigationActions.INIT });
     expect(state).toEqual({
       index: 0,
-      isTransitioning: false,
+      transitions: { pushing: [], popping: [] },
       key: 'StackRouterRoot',
       routes: [
         {
@@ -1723,7 +1730,7 @@ describe('StackRouter', () => {
     ]);
   });
 
-  it('Navigate action to previous nested StackRouter causes isTransitioning start', () => {
+  it('Navigate action to previous nested StackRouter causes no transitions', () => {
     const ChildNavigator = () => <div />;
     ChildNavigator.router = StackRouter({
       Baz: { screen: () => <div /> },
@@ -1740,6 +1747,7 @@ describe('StackRouter', () => {
       },
       router.getStateForAction({ type: NavigationActions.INIT })
     );
+
     const state2 = router.getStateForAction(
       {
         type: NavigationActions.NAVIGATE,
@@ -1747,8 +1755,9 @@ describe('StackRouter', () => {
       },
       state
     );
+
     expect(state2.index).toEqual(0);
-    expect(state2.isTransitioning).toEqual(true);
+    expect(state2.transitions).toEqual({ pushing: [], popping: [] });
   });
 
   it('Handles the navigate action with params and nested StackRouter as a first action', () => {
@@ -1781,19 +1790,19 @@ describe('StackRouter', () => {
 
     expect(state).toEqual({
       index: 0,
-      isTransitioning: false,
+      transitions: { pushing: [], popping: [] },
       key: 'StackRouterRoot',
       routes: [
         {
           index: 0,
-          isTransitioning: false,
+          transitions: { pushing: [], popping: [] },
           key: 'id-2',
           params: { code: 'test', foo: 'bar' },
           routeName: 'main',
           routes: [
             {
               index: 0,
-              isTransitioning: false,
+              transitions: { pushing: [], popping: [] },
               key: 'id-1',
               params: { code: 'test', foo: 'bar', id: '4' },
               routeName: 'profile',
@@ -1840,19 +1849,19 @@ describe('StackRouter', () => {
 
     expect(state2).toEqual({
       index: 0,
-      isTransitioning: false,
+      transitions: { pushing: [], popping: [] },
       key: 'StackRouterRoot',
       routes: [
         {
           index: 0,
-          isTransitioning: false,
+          transitions: { pushing: [], popping: [] },
           key: 'id-5',
           params: { code: '', foo: 'bar' },
           routeName: 'main',
           routes: [
             {
               index: 0,
-              isTransitioning: false,
+              transitions: { pushing: [], popping: [] },
               key: 'id-4',
               params: { code: '', foo: 'bar', id: '4' },
               routeName: 'profile',
@@ -1899,9 +1908,12 @@ describe('StackRouter', () => {
       state
     );
     expect(state2.index).toEqual(0);
-    expect(state2.isTransitioning).toEqual(false);
+    expect(state2.transitions).toEqual({ pushing: [], popping: [] });
     expect(state2.routes[0].index).toEqual(1);
-    expect(state2.routes[0].isTransitioning).toEqual(true);
+    expect(state2.routes[0].transitions).toEqual({
+      popping: [],
+      pushing: ['id-2'],
+    });
     expect(!!key).toEqual(true);
     const state3 = router.getStateForAction(
       {
@@ -1911,9 +1923,12 @@ describe('StackRouter', () => {
       state2
     );
     expect(state3 && state3.index).toEqual(0);
-    expect(state3 && state3.isTransitioning).toEqual(false);
+    expect(state3 && state3.transitions).toEqual({ popping: [], pushing: [] });
     expect(state3 && state3.routes[0].index).toEqual(1);
-    expect(state3 && state3.routes[0].isTransitioning).toEqual(false);
+    expect(state3 && state3.routes[0].transitions).toEqual({
+      popping: [],
+      pushing: [],
+    });
   });
 
   it('order of handling navigate action is correct for nested stackrouters', () => {

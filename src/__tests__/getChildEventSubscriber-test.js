@@ -18,7 +18,6 @@ it('child action events only flow when focused', () => {
     routeName: 'FooRoute',
     routes: [{ key: 'key0' }, { key: 'key1' }],
     index: 0,
-    isTransitioning: false,
   };
   const focusedTestState = {
     ...testState,
@@ -76,20 +75,21 @@ it('grandchildren subscription', () => {
         key: 'parent',
         routes: [{ key: 'key0' }, { key: 'key1' }],
         index: 1,
-        isTransitioning: false,
       },
     ],
+    transitions: {
+      pushing: [],
+      popping: ['parent'],
+    },
     index: 0,
-    isTransitioning: false,
   };
   const parentTransitionState = {
     ...parentBlurState,
     index: 1,
-    isTransitioning: true,
+    transitions: { pushing: ['key1'], popping: [] },
   };
   const parentFocusState = {
     ...parentTransitionState,
-    isTransitioning: false,
   };
   const childActionHandler = jest.fn();
   const childWillFocusHandler = jest.fn();
@@ -136,13 +136,16 @@ it('grandchildren transitions', () => {
     .addListener;
   const makeFakeState = (childIndex, childIsTransitioning) => ({
     index: 1,
-    isTransitioning: false,
+
     routes: [
       { key: 'nothing' },
       {
         key: 'parent',
         index: childIndex,
-        isTransitioning: childIsTransitioning,
+        transitions: {
+          pushing: [],
+          popping: childIsTransitioning ? ['key2'] : [],
+        },
         routes: [{ key: 'key0' }, { key: 'key1' }, { key: 'key2' }],
       },
     ],
@@ -229,13 +232,16 @@ it('grandchildren pass through transitions', () => {
     .addListener;
   const makeFakeState = (childIndex, childIsTransitioning) => ({
     index: childIndex,
-    isTransitioning: childIsTransitioning,
+    transitions: {
+      pushing: [],
+      popping: childIsTransitioning ? ['key2'] : [],
+    },
     routes: [
       { key: 'nothing' },
       {
         key: 'parent',
         index: 1,
-        isTransitioning: false,
+
         routes: [{ key: 'key0' }, { key: 'key1' }, { key: 'key2' }],
       },
     ].slice(0, childIndex + 1),
@@ -322,7 +328,6 @@ it('child focus with transition', () => {
     routeName: 'FooRoute',
     routes: [{ key: 'key0' }, { key: 'key1' }],
     index: 0,
-    isTransitioning: false,
   };
   const childWillFocusHandler = jest.fn();
   const childDidFocusHandler = jest.fn();
@@ -345,7 +350,7 @@ it('child focus with transition', () => {
     state: {
       ...testState,
       index: 1,
-      isTransitioning: true,
+      transitions: { pushing: [], popping: ['key1'] },
     },
   });
   expect(childWillFocusHandler.mock.calls.length).toBe(1);
@@ -355,12 +360,11 @@ it('child focus with transition', () => {
     lastState: {
       ...testState,
       index: 1,
-      isTransitioning: true,
+      transitions: { pushing: [], popping: ['key1'] },
     },
     state: {
       ...testState,
       index: 1,
-      isTransitioning: false,
     },
   });
   expect(childDidFocusHandler.mock.calls.length).toBe(1);
@@ -370,12 +374,11 @@ it('child focus with transition', () => {
     lastState: {
       ...testState,
       index: 1,
-      isTransitioning: false,
     },
     state: {
       ...testState,
       index: 0,
-      isTransitioning: true,
+      transitions: { pushing: [], popping: ['key1'] },
     },
   });
   expect(childWillBlurHandler.mock.calls.length).toBe(1);
@@ -385,12 +388,11 @@ it('child focus with transition', () => {
     lastState: {
       ...testState,
       index: 0,
-      isTransitioning: true,
+      transitions: { pushing: [], popping: ['key1'] },
     },
     state: {
       ...testState,
       index: 0,
-      isTransitioning: false,
     },
   });
   expect(childDidBlurHandler.mock.calls.length).toBe(1);
@@ -415,7 +417,6 @@ it('child focus with immediate transition', () => {
     routeName: 'FooRoute',
     routes: [{ key: 'key0' }, { key: 'key1' }],
     index: 0,
-    isTransitioning: false,
   };
   const childWillFocusHandler = jest.fn();
   const childDidFocusHandler = jest.fn();
@@ -491,12 +492,11 @@ it('immediate back with uncompleted transition will focus first screen again', (
     state: {
       index: 1,
       routes: [{ key: 'key0' }, { key: 'key1' }],
-      isTransitioning: true,
+      transitions: { pushing: [], popping: ['key1'] },
     },
     lastState: {
       index: 0,
       routes: [{ key: 'key0' }],
-      isTransitioning: false,
     },
     action: { type: 'Any action, does not matter here' },
   });
@@ -509,12 +509,12 @@ it('immediate back with uncompleted transition will focus first screen again', (
     state: {
       index: 0,
       routes: [{ key: 'key0' }],
-      isTransitioning: true,
+      transitions: { pushing: [], popping: ['key0'] },
     },
     lastState: {
       index: 1,
       routes: [{ key: 'key0' }, { key: 'key1' }],
-      isTransitioning: true,
+      transitions: { pushing: [], popping: ['key1'] },
     },
     action: { type: 'Any action, does not matter here' },
   });
@@ -527,12 +527,11 @@ it('immediate back with uncompleted transition will focus first screen again', (
     state: {
       index: 0,
       routes: [{ key: 'key0' }],
-      isTransitioning: false,
     },
     lastState: {
       index: 0,
       routes: [{ key: 'key0' }],
-      isTransitioning: true,
+      transitions: { pushing: [], popping: ['key0'] },
     },
     action: { type: 'Any action, does not matter here' },
   });
