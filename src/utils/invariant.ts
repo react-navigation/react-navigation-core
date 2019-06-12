@@ -1,5 +1,3 @@
-/* eslint-disable import/no-commonjs */
-
 /**
  * Use invariant() to assert state which your program assumes to be true.
  *
@@ -42,4 +40,4 @@ function invariant(condition: boolean, format?: string, ...args: any[]) {
   }
 }
 
-module.exports = invariant;
+export default invariant;
