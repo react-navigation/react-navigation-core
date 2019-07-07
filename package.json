@@ -40,6 +40,7 @@
   "homepage": "https://github.com/react-navigation/react-navigation-core#readme",
   "dependencies": {
     "hoist-non-react-statics": "^3.3.0",
+    "lodash.get": "^4.4.2",
     "path-to-regexp": "^1.7.0",
     "query-string": "^6.4.2",
     "react-is": "^16.8.6"

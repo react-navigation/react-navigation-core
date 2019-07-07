@@ -1,17 +1,12 @@
+import get from 'lodash.get';
+
 import getChildEventSubscriber from './getChildEventSubscriber';
 import getChildRouter from './getChildRouter';
 import getNavigationActionCreators from './routers/getNavigationActionCreators';
 import getChildrenNavigationCache from './getChildrenNavigationCache';
 
-const createParamGetter = route => (paramName, defaultValue) => {
-  const params = route.params;
-
-  if (params && paramName in params) {
-    return params[paramName];
-  }
-
-  return defaultValue;
-};
+const createParamGetter = route => (path, defaultValue) =>
+  get(route, `params.${path}`, defaultValue);
 
 function getChildNavigation(navigation, childKey, getCurrentParentNavigation) {
   const children = getChildrenNavigationCache(navigation);
