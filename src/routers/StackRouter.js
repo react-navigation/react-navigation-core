@@ -456,7 +456,8 @@ export default (routeConfigs, stackConfig = {}) => {
       if (
         action.type === StackActions.COMPLETE_TRANSITION &&
         (action.key == null || action.key === state.key) &&
-        action.toChildKey === state.routes[state.index].key &&
+        (action.toChildKey == null ||
+          action.toChildKey === state.routes[state.index].key) &&
         state.isTransitioning
       ) {
         return {
