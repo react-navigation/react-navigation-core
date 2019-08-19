@@ -43,8 +43,8 @@ const getRestOfPath = (pathMatch, pathMatchKeys) => {
 const determineDelimiter = (uri, uriPrefix) => {
   if (Array.isArray(uriPrefix)) {
     if (uriPrefix.length === 1) return uriPrefix[0];
-    for (let prefix of uriPrefix) {
-      if (uri.includes(prefix)) return prefix;
+    for (let startsWith of uriPrefix) {
+      if (uri.includes(startsWith)) return startsWith;
     }
     return null;
   }
