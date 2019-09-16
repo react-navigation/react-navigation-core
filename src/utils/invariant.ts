@@ -11,8 +11,7 @@
 
 let validateFormat: (format?: string) => void = function() {};
 
-// TODO: Check if this should be `process.env.NODE_ENV`
-if ((process.env as any) !== 'production') {
+if (process.env.NODE_ENV !== 'production') {
   validateFormat = function(format?: string) {
     if (format === undefined) {
       throw new Error('invariant requires an error message argument');
