@@ -15,6 +15,8 @@ export default function getChildEventSubscriber(
   const willBlurSubscribers = new Set();
   const didBlurSubscribers = new Set();
   const refocusSubscribers = new Set();
+  const drawerOpenSubscribers = new Set();
+  const drawerCloseSubscribers = new Set();
 
   const removeAll = () => {
     [
@@ -24,6 +26,8 @@ export default function getChildEventSubscriber(
       willBlurSubscribers,
       didBlurSubscribers,
       refocusSubscribers,
+      drawerOpenSubscribers,
+      drawerCloseSubscribers,
     ].forEach(set => set.clear());
 
     upstreamSubscribers.forEach(subs => subs && subs.remove());
@@ -43,6 +47,10 @@ export default function getChildEventSubscriber(
         return didBlurSubscribers;
       case 'refocus':
         return refocusSubscribers;
+      case 'drawerOpen':
+        return drawerOpenSubscribers;
+      case 'drawerClose':
+        return drawerCloseSubscribers;
       default:
         return null;
     }
@@ -70,11 +78,17 @@ export default function getChildEventSubscriber(
     'didBlur',
     'refocus',
     'action',
+    'drawerOpen',
+    'drawerClose',
   ];
 
   const upstreamSubscribers = upstreamEvents.map(eventName =>
     addListener(eventName, payload => {
-      if (eventName === 'refocus') {
+      if (
+        eventName === 'refocus' ||
+        eventName === 'drawerOpen' ||
+        eventName === 'drawerClose'
+      ) {
         emit(eventName, payload);
         return;
       }
