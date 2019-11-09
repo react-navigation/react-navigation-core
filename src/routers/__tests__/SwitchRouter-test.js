@@ -139,6 +139,29 @@ describe('SwitchRouter', () => {
     expect(getSubState(2).routeName).toEqual('B1');
   });
 
+  it('handles back and does not apply back action to inactive child', () => {
+    const { navigateTo, back, getSubState } = getRouterTestHelper(
+      getExampleRouter({
+        backBehavior: 'initialRoute',
+        resetOnBlur: false, // Don't erase the state of substack B when we switch back to A
+      })
+    );
+
+    expect(getSubState(1).routeName).toEqual('A');
+
+    navigateTo('B');
+    navigateTo('B2');
+    expect(getSubState(1).routeName).toEqual('B');
+    expect(getSubState(2).routeName).toEqual('B2');
+
+    navigateTo('A');
+    expect(getSubState(1).routeName).toEqual('A');
+
+    // The back action should not switch to B. It should stay on A
+    back({ key: null });
+    expect(getSubState(1).routeName).toEqual('A');
+  });
+
   it('handles nested actions', () => {
     const { navigateTo, getSubState } = getRouterTestHelper(getExampleRouter());
 

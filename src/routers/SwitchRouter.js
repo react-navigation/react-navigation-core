@@ -334,43 +334,47 @@ export default (routeConfigs, config = {}) => {
       }
 
       // Let other children handle it and switch to the first child that returns a new state
-      let index = state.index;
-      let routes = state.routes;
-      order.find((childId, i) => {
-        const childRouter = childRouters[childId];
-        if (i === index) {
+      // Do not do this for BACK actions though. If a user pressed back, switching to another child because *that* child has a back stack would feel weird.
+      if (action.type !== NavigationActions.BACK) {
+        let index = state.index;
+        let routes = state.routes;
+        order.find((childId, i) => {
+          const childRouter = childRouters[childId];
+          if (i === index) {
+            return false;
+          }
+          let childState = routes[i];
+          if (childRouter) {
+            childState = childRouter.getStateForAction(action, childState);
+          }
+          if (!childState) {
+            index = i;
+            return true;
+          }
+          if (childState !== routes[i]) {
+            routes = [...routes];
+            routes[i] = childState;
+            index = i;
+            return true;
+          }
           return false;
-        }
-        let childState = routes[i];
-        if (childRouter) {
-          childState = childRouter.getStateForAction(action, childState);
-        }
-        if (!childState) {
-          index = i;
-          return true;
-        }
-        if (childState !== routes[i]) {
-          routes = [...routes];
-          routes[i] = childState;
-          index = i;
-          return true;
-        }
-        return false;
-      });
-
-      // Nested routers can be updated after switching children with actions such as SET_PARAMS
-      // and COMPLETE_TRANSITION.
-      if (action.preserveFocus) {
-        index = state.index;
-      }
-
-      if (index !== state.index || routes !== state.routes) {
-        return getNextState(action, prevState, {
-          ...state,
-          index,
-          routes,
         });
+
+        // Nested routers can be updated after switching children with actions such as SET_PARAMS
+        // and COMPLETE_TRANSITION.
+        if (action.preserveFocus) {
+          index = state.index;
+        }
+
+        if (index !== state.index || routes !== state.routes) {
+          return getNextState(action, prevState, {
+            ...state,
+            index,
+            routes,
+          });
+        }
       }
+
       return state;
     },
 
