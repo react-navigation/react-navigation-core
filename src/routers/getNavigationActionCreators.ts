@@ -42,7 +42,7 @@ const getNavigationActionCreators = (route: any) => {
       );
       return NavigationActions.navigate(navigateTo);
     },
-    setParams: (params?: NavigationParams) => {
+    setParams: (params?: Partial<NavigationParams>) => {
       invariant(
         route.key && typeof route.key === 'string',
         'setParams cannot be called by root navigator'
