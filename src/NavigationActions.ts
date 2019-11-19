@@ -39,7 +39,7 @@ export interface NavigationSetParamsActionPayload {
   key: string;
 
   // The new params to merge into the existing route params
-  params?: NavigationParams;
+  params?: Partial<NavigationParams>;
 }
 
 export interface NavigationSetParamsAction
