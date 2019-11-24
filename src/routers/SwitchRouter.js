@@ -4,6 +4,7 @@ import createConfigGetter from './createConfigGetter';
 
 import * as NavigationActions from '../NavigationActions';
 import * as SwitchActions from './SwitchActions';
+import * as StackActions from './StackActions';
 import validateRouteConfigMap from './validateRouteConfigMap';
 import { createPathParser } from './pathUtils';
 
@@ -244,8 +245,6 @@ export default (routeConfigs, config = {}) => {
           const routeKey =
             state.routeKeyHistory[state.routeKeyHistory.length - 2];
           activeChildIndex = order.indexOf(routeKey);
-        } else {
-          return state;
         }
       }
 
@@ -333,9 +332,18 @@ export default (routeConfigs, config = {}) => {
         return { ...state };
       }
 
+      const isActionBackOrPop =
+        action.type === NavigationActions.BACK ||
+        action.type === StackActions.POP ||
+        action.type === StackActions.POP_TO_TOP;
+      const sendActionToInactiveChildren =
+        !isActionBackOrPop ||
+        (action.type === NavigationActions.BACK && action.key != null);
+
       // Let other children handle it and switch to the first child that returns a new state
-      // Do not do this for BACK actions though. If a user pressed back, switching to another child because *that* child has a back stack would feel weird.
-      if (action.type !== NavigationActions.BACK) {
+      // Do not do this for StackActions.POP or NavigationActions.BACK actions without a key:
+      // it would be unintuitive for these actions to switch to another tab just because that tab had a Stack that could accept a back action
+      if (sendActionToInactiveChildren) {
         let index = state.index;
         let routes = state.routes;
         order.find((childId, i) => {

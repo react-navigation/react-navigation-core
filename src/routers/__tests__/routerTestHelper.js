@@ -1,5 +1,6 @@
 import * as NavigationActions from '../../NavigationActions';
 import * as SwitchActions from '../../routers/SwitchActions';
+import * as StackActions from '../../routers/StackActions';
 
 // A simple helper that makes it easier to write basic routing tests
 // We generally want to apply one action after the other and check router returns correct state
@@ -31,9 +32,20 @@ export const getRouterTestHelper = (router, initAction = defaultInitAction) => {
       ...otherActionAttributes,
     });
 
-  const back = () =>
+  const back = key =>
     applyAction({
       type: NavigationActions.BACK,
+      key,
+    });
+
+  const pop = () =>
+    applyAction({
+      type: StackActions.POP,
+    });
+
+  const popToTop = () =>
+    applyAction({
+      type: StackActions.POP_TO_TOP,
     });
 
   const getState = () => state;
@@ -42,7 +54,16 @@ export const getRouterTestHelper = (router, initAction = defaultInitAction) => {
     return getSubStateRecursive(state, level);
   };
 
-  return { applyAction, navigateTo, jumpTo, back, getState, getSubState };
+  return {
+    applyAction,
+    navigateTo,
+    jumpTo,
+    back,
+    pop,
+    popToTop,
+    getState,
+    getSubState,
+  };
 };
 
 const getSubStateRecursive = (state, level = 1) => {
